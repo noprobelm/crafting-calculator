@@ -5,7 +5,7 @@ import networkx as nx
 class Calculator:
     """Class for a generic crafting calculator.
 
-    A CraftingCalc object stores a csv recipe table as a Pandas
+    A Calculator object stores a csv recipe table as a Pandas
     DataFrame and a directed graph structure (networkx DiGraph).
 
     The methods within use the DiGraph to retrieve information about
@@ -20,12 +20,15 @@ class Calculator:
         are required.
     rcol: Recipe column
         String defining the name of the recipe column from the csv
-    icols: Ingredient columns
-        List defining the ingredient columns in the csv for each recipe.
-    i_input_cols: Ingredient input columns
+    icols : Ingredient columns
+        Dict defining the ingredient columns in the csv for each recipe.
+        Keys should be the columns containing the ingredient names; values
+        are the number for each required to produce a single unit of the
+        recipe.
+    i_input_cols : Ingredient input columns
         List defining the columns containing information on the number
         of ingredients required to produce one of a recipe.
-    recipe_attrs: Recipe Attributes (optional, default: None)
+    recipe_attrs : Recipe Attributes (optional, default: None)
         Dict whose key is the attribute to be used when referencing
         additional information about a recipe, (e.g. prerequisite skill,
         object, or other information to be used in a calculation.) and
@@ -33,12 +36,12 @@ class Calculator:
 
     """
 
-    def __init__(self, csv, rcol, icols, i_input_cols, recipe_attrs=None):
+    def __init__(self, csv, rcol, icols, recipe_attrs=None):
         self.df = pd.read_csv(csv).set_index(rcol)
-        self.G = self.build_graph(icols, i_input_cols, recipe_attrs)
+        self.G = self.build_graph(icols, recipe_attrs)
         self.recipes = list(self.G.nodes)
 
-    def build_graph(self, icols, i_input_cols, recipe_attrs):
+    def build_graph(self, icols, recipe_attrs):
         """Generates the DiGraph structure to be used when calculating
         recipe requirements.
         """
@@ -46,8 +49,8 @@ class Calculator:
         def add_nodes():
             G.add_nodes_from(df.index)
             for n in df.index:
-                for ingredient, num_input in zip(tuple(df[df.index == n][icols].dropna(axis=1).values[0]),
-                                                tuple(df[df.index == n][i_input_cols].dropna(axis=1).values[0])):
+                for ingredient, num_input in zip(tuple(df[df.index == n][icols.keys()].dropna(axis=1).values[0]),
+                                                tuple(df[df.index == n][icols.values()].dropna(axis=1).values[0])):
                     G.add_edge(n, ingredient, num_input=num_input)
 
         def add_recipe_attrs():

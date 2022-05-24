@@ -1,7 +1,7 @@
 import sys
 
 sys.path.insert(0,"..")
-from calculator import CraftCalc
+from calculator import Calculator
 
 # The directory of the csv file containing the recipe table data.
 csv = "../data/csv/satisfactory.csv"
@@ -22,18 +22,21 @@ recipe_attrs = {"building" : "Building",
                 "alternate" : "Alternate",
                 "alternate_of" : "Alternate of"}
 
+icols = dict(zip(icols, i_input_cols))
 # Creates a CraftCalc object based on the Satisfactory recipes csv.
-sat = CraftCalc.Calculator(csv=csv, rcol="Recipe", icols=icols,
-                           i_input_cols=i_input_cols, recipe_attrs=recipe_attrs)
+sat = Calculator.Calculator(csv=csv, rcol="Recipe", icols=icols,
+                           recipe_attrs=recipe_attrs)
 
 
 # Prompts the user for recipe input
 recipe = input("Input a recipe: ")
 
 # Prompts the user for the number of desired recipe to output
-num_output = float(input("Input the number of recipe desired for production (default=1): "))
-if num_output == None:
+num_output = input("Input the number of recipe desired for production (default=1): ")
+if len(num_output) == 0:
     num_output = float(1)
+else:
+    num_output = float(num_output)
 
 # Calls the CraftCalc.calc_recipe() function and returns a dict of the
 # ingredients and the required number for each.
